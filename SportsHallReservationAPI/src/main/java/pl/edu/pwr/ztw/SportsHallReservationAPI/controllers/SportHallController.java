@@ -9,6 +9,8 @@ import pl.edu.pwr.ztw.SportsHallReservationAPI.models.User;
 import pl.edu.pwr.ztw.SportsHallReservationAPI.services.ISportHallService;
 import pl.edu.pwr.ztw.SportsHallReservationAPI.services.IUserService;
 
+import javax.naming.event.ObjectChangeListener;
+import java.util.List;
 import java.util.NoSuchElementException;
 
 @RestController
@@ -43,6 +45,17 @@ public class SportHallController {
 
         }catch(NoSuchElementException ex) {
             return new ResponseEntity<>("This sport hall was not found", HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @RequestMapping(value="/get/hall/type/{id}", method = RequestMethod.GET)
+    public ResponseEntity<Object> getSportHallsByType(@PathVariable ("id") int id){
+        try{
+            List<SportHall> sportHalls = sportHallsService.getSportHallsByType(id);
+
+            return new ResponseEntity<Object>(sportHalls, HttpStatus.OK);
+        }catch (NoSuchElementException ex){
+            return new ResponseEntity<Object>(HttpStatus.NOT_FOUND);
         }
     }
 

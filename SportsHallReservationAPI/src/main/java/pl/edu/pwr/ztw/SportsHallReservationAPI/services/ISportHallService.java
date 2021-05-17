@@ -9,5 +9,6 @@ public interface ISportHallService {
     public List<SportHall> getAllSportHalls();
     public SportHall getSportHall(int id);
     public void saveSportHall(SportHall sportHall);
+    public List<SportHall> getSportHallsByType(int id);
 
 }

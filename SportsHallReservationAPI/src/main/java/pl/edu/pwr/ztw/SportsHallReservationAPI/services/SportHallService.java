@@ -9,6 +9,7 @@ import pl.edu.pwr.ztw.SportsHallReservationAPI.repositories.UserRepository;
 
 import javax.transaction.Transactional;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -30,5 +31,13 @@ public class SportHallService implements ISportHallService{
     public void saveSportHall(SportHall sportHall)
     {
         repo.save(sportHall);
+    }
+
+    @Override
+    public List<SportHall> getSportHallsByType(int id) {
+        List<SportHall> listSportHalls;
+        listSportHalls = repo.findAll().stream().filter(s -> s.getHallType().getTypeId() == id).collect(Collectors.toList());
+
+        return  listSportHalls;
     }
 }
