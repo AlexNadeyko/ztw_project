@@ -1,49 +1,48 @@
-
 CREATE DATABASE AdvWeb;
 
 USE AdvWeb;
 
 CREATE TABLE HallType(
-	TypeId int NOT NULL AUTO_INCREMENT,
-	Type varchar(25) NOT NULL,
-	PRIMARY KEY (TypeId)
+	type_id int NOT NULL AUTO_INCREMENT,
+	type varchar(25) NOT NULL,
+	PRIMARY KEY (type_id)
 );
 
 CREATE TABLE Users(
-	UserId int NOT NULL AUTO_INCREMENT,
-	Name varchar(50) NOT NULL,
-	Surname varchar(50) NOT NULL,
-	Mail varchar(50) NOT NULL,
-	Password varchar(50) NOT NULL,
-	BirthDate Date,
-	PRIMARY KEY (UserId)
+	user_id int NOT NULL AUTO_INCREMENT,
+	name varchar(50) NOT NULL,
+	surname varchar(50) NOT NULL,
+	email varchar(50) NOT NULL,
+	password varchar(50) NOT NULL,
+	birth_date Date,
+	PRIMARY KEY (user_id)
 );
 
 
 CREATE TABLE SportHalls(
-	HallId int NOT NULL AUTO_INCREMENT,
-	Type int NOT NULL,
-	WorkFrom Time NOT NULL,
-	WorkTo Time NOT NULL,
-	PriceOneHour decimal NOT NULL,
-	Capacity int,
-	NrHall int NOT NULL,
-	PRIMARY KEY (HallId),
-	FOREIGN KEY (Type) REFERENCES HallType(TypeId)
+	hall_id int NOT NULL AUTO_INCREMENT,
+	type int NOT NULL,
+	work_from Time NOT NULL,
+	work_to Time NOT NULL,
+	price_one_hour decimal NOT NULL,
+	capacity int,
+	nr_hall int NOT NULL,
+	PRIMARY KEY (hall_id),
+	FOREIGN KEY (type) REFERENCES HallType(type_id)
 );
 
 
 CREATE TABLE Rentals(
-	RentalId int NOT NULL AUTO_INCREMENT,
-	IdUser int NOT NULL,
-	IdHall int NOT NULL,
-	RentalDate date NOT NULL,
-	TimeFrom Time NOT NULL,
-	TimeTo Time NOT NULL,
-	FullPrice decimal NOT NULL,
-	Paid BIT NOT NULL,
-	Description varchar(255),
-	PRIMARY KEY (RentalId),
-	FOREIGN KEY (IdUser) REFERENCES Users(UserId),
-	FOREIGN KEY (IdHall) REFERENCES SportHalls(HallId)
+	rental_id int NOT NULL AUTO_INCREMENT,
+	id_user int NOT NULL,
+	id_hall int NOT NULL,
+	rental_date date NOT NULL,
+	time_from Time NOT NULL,
+	time_to Time NOT NULL,
+	full_price decimal NOT NULL,
+	is_paid BIT NOT NULL,
+	description varchar(255),
+	PRIMARY KEY (rental_id),
+	FOREIGN KEY (id_user) REFERENCES Users(user_id), 
+	FOREIGN KEY (id_hall) REFERENCES SportHalls(hall_id)
 );
