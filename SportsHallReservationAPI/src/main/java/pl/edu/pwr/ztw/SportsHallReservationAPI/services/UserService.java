@@ -2,7 +2,6 @@ package pl.edu.pwr.ztw.SportsHallReservationAPI.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import pl.edu.pwr.ztw.SportsHallReservationAPI.exceptions.EmailAddressAlreadyInUseException;
 import pl.edu.pwr.ztw.SportsHallReservationAPI.models.User;
 import pl.edu.pwr.ztw.SportsHallReservationAPI.repositories.UserRepository;
 

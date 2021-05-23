@@ -5,7 +5,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import pl.edu.pwr.ztw.SportsHallReservationAPI.exceptions.EmailAddressAlreadyInUseException;
 import pl.edu.pwr.ztw.SportsHallReservationAPI.models.User;
 import pl.edu.pwr.ztw.SportsHallReservationAPI.services.IUserService;
 import pl.edu.pwr.ztw.SportsHallReservationAPI.services.UserService;
