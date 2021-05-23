@@ -1,10 +1,14 @@
 package pl.edu.pwr.ztw.SportsHallReservationAPI.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import javax.persistence.*;
 import java.util.Date;
+import java.util.List;
 
 @Entity
 @Table(name = "user")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "reservations"})
 public class User {
 
     @Id
@@ -26,6 +30,10 @@ public class User {
 
     @Column(name = "birth_date")
     private Date birthDate;
+
+    @OneToMany(mappedBy = "user")
+    private List<Reservation> reservations;
+
 
     public User()
     {
