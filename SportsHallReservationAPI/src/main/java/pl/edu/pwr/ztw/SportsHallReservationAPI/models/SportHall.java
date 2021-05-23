@@ -4,7 +4,7 @@ import javax.persistence.*;
 import java.sql.Time;
 
 @Entity
-@Table(name="sporthalls")
+@Table(name="sport_hall")
 public class SportHall {
 
     @Id
