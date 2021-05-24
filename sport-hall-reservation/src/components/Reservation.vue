@@ -26,26 +26,28 @@
       <th>
         <div class="reservation-container">
           <table>
-            <!-- ...thead... -->
             <tbody>
               <th>Court</th>
-              <th>Time</th>
+              <th v-for="(time, index) in this.get_only_time" :key="index">
+                {{ time }}
+              </th>
               <th>Court</th>
-              <!-- <tr
-                v-for="reservation in reservationSource"
-                :key="reservation.id"
-              >
-                <td>{{ reservation.id }}</td>
-                <td>{{ reservation.user.name }}</td>
-                <td>{{ reservation.timeTo }}</td>
-              </tr> -->
+
               <tr
                 v-for="reservation in this.convert_reservations"
                 :key="reservation.id"
               >
-                <td>{{ reservation.id_num +1 }}</td>
-                <td>{{ reservation.time }}</td>
-                <td>{{ reservation.id_num +1 }}</td>
+                <td>{{ reservation.id_num + 1 }}</td>
+
+                <td v-for="(time, index) in reservation.time" :key="index">
+                  <input
+                    type="checkbox"
+                    id="time_checkbox"
+                    name="time_checkbox"
+                    value="Bike"
+                  />
+                </td>
+                <td>{{ reservation.id_num + 1 }}</td>
               </tr>
             </tbody>
           </table>
@@ -63,7 +65,7 @@ export default {
   },
   data() {
     return {
-      converted_reservation: { id: 0, id_num: 0, time: [], id_type: 0 },
+      converted_reservation: Array,
     };
   },
   methods: {},
@@ -87,21 +89,50 @@ export default {
       this.reservationSource.forEach((element) => {
         if (element.sportHall.hallType.type == type) {
           console.log(element.sportHall.hallType.type);
-          var time_list = []
+          var time_list = [];
           var from = element.sportHall.work_from.split(":");
           var to = element.sportHall.work_to.split(":");
           var time_hours = parseInt(to, 10) - parseInt(from, 10);
           for (var i = 0; i < time_hours; i++) {
-              time_list.push((parseInt(from,10) + i).toString())
-            console.log(time_list[i]);
+            time_list.push((parseInt(from, 10) + i).toString());
           }
-          converted_res_list.push(
-            {id_sportHall:element.sportHall.id, id_num:id_counter,time:time_list,id_type:element.sportHall.hallType.type}
-          );
+          time_list.splice(-1,1)
+          converted_res_list.push({
+            id_sportHall: element.sportHall.id,
+            id_num: id_counter,
+            time: time_list,
+            id_type: element.sportHall.hallType.type,
+          });
           id_counter += 1;
         }
       });
       return converted_res_list;
+    },
+    get_only_time() {
+      const type = "Tennis";
+
+      var converted_time_list = [];
+      this.reservationSource.forEach((element) => {
+        if (element.sportHall.hallType.type == type) {
+          console.log(element.sportHall.hallType.type);
+          var time_list = [];
+          var from = element.sportHall.work_from.split(":");
+          var to = element.sportHall.work_to.split(":");
+          var time_hours = parseInt(to, 10) - parseInt(from, 10);
+          for (var i = 0; i < time_hours; i++) {
+            time_list.push((parseInt(from, 10) + i).toString());
+          }
+          converted_time_list.push(time_list);
+        }
+      });
+      console.log(this.reservationSource)
+      for (var i = 0; i < converted_time_list[0].length; i++) {
+        if(i != converted_time_list[0].length -1)
+          converted_time_list[0][i] = converted_time_list[0][i] + " - "+ converted_time_list[0][i+1]
+      }
+      console.log(converted_time_list);
+      converted_time_list[0].splice(-1,1)
+      return converted_time_list[0];
     },
   },
 };
