@@ -11,11 +11,13 @@
       >
         <input
           type="radio"
-          :id="index"
+          class="radio-change"
+          id="radio-change"
           :value="option.hallType.type"
-          :name="'option-selected'"
+          :name="type - hall"
           @change="radio_listener($event)"
-          v-model="option.value"
+          v-model="pick"
+          checked="checked"
         />
         <label :for="index">{{ option.hallType.type }}</label>
       </div>
@@ -36,6 +38,7 @@
           value="1"
           class="slider"
           id="myRange"
+          @change="slider_listener()"
         />
         <p class="time-element" id="finish-time">20:00</p>
       </div>
@@ -67,10 +70,11 @@ export default {
         [357, 326, 378, 314],
         [743, 326, 401, 314],
       ],
+      curent_type: "",
     };
   },
   methods: {
-    draw_rectangles() {
+    draw_rectangles(colors) {
       var c = document.getElementById("myCanvas");
       var ctx = c.getContext("2d");
       var img = document.getElementById("MyImage");
@@ -80,6 +84,8 @@ export default {
 
       var positions = [];
 
+      var counter = 0;
+
       this.img_positions_data.forEach((position) => {
         positions.push(position);
         var start_x = position[0];
@@ -88,17 +94,28 @@ export default {
         var finish_y = position[3];
         context.beginPath();
         context.rect(start_x, start_y, finish_x, finish_y);
-        context.fillStyle = "yellow";
+        if (colors.length == 0 || counter > colors.length) {
+          context.fillStyle = "#E6E7E8";
+        } else {
+          context.fillStyle = colors[counter];
+        }
         context.fill();
+        counter += 1;
       });
 
       canvas.onmousemove = function(e) {
         // important: correct mouse position:
+        var counter = 0;
         var rect = this.getBoundingClientRect(),
           x = e.clientX - rect.left,
           y = e.clientY - rect.top;
-
+        var color_map = {
+          "#B5FBDD": "#00CF91",
+          "#FF756B": "#E20338",
+          "#E6E7E8": "#BCBEC0",
+        };
         //ctx.clearRect(0, 0, canvas.width, canvas.height); // for demo
+
         positions.forEach((position) => {
           var start_x = position[0];
           var start_y = position[1];
@@ -106,11 +123,19 @@ export default {
           var finish_y = position[3];
           ctx.beginPath();
           ctx.rect(start_x, start_y, finish_x, finish_y);
-          ctx.fillStyle = ctx.isPointInPath(x, y) ? "red" : "yellow";
+          if (colors.length == 0 || counter > colors.length) {
+            ctx.fillStyle = ctx.isPointInPath(x, y) ? "#BCBEC0" : "#E6E7E8";
+          } else {
+            ctx.fillStyle = ctx.isPointInPath(x, y)
+              ? color_map[colors[counter]]
+              : colors[counter];
+          }
           ctx.fill();
+          counter += 1;
         });
       };
     },
+
     set_time(optionText) {
       var start_time = "";
       var finish_time = "";
@@ -130,26 +155,54 @@ export default {
 
     radio_listener(event) {
       var optionText = event.target.value;
+      this.curent_type = optionText;
       this.set_time(optionText);
+    },
+
+    get_hole_state(time) {
+      var result = [];
+      this.hallSource.forEach((element) => {
+        if (element.hallType.type == this.curent_type) {
+          var hall_busy = false;
+          this.reservationSource.forEach((reservation) => {
+            if (element.id == reservation.sportHall.id) {
+              if (reservation.timeFrom != time + ":00") {
+                hall_busy = true;
+              }
+            }
+          });
+          if (hall_busy) {
+            //red
+            result.push("#B5FBDD");
+          } else {
+            //green
+            result.push("#FF756B");
+          }
+        } else {
+          //gray
+          result.push("#E6E7E8");
+        }
+      });
+      return result;
     },
 
     slider_listener() {
       var sliderDiv = document.getElementById("myRange");
-      sliderDiv.onchange = function() {
-        var curentTime = document.getElementById("curent-time");
-        var starttTime = document.getElementById("start-time");
-
-        var new_time =
-          parseInt(starttTime.innerText.split(":")[0]) +
-          parseInt(this.value) -
-          1;
-        curentTime.innerText = ("00" + new_time + ":00").slice(-5);
-      };
+      var curentTime = document.getElementById("curent-time");
+      var starttTime = document.getElementById("start-time");
+      var new_time =
+        parseInt(starttTime.innerText.split(":")[0]) +
+        parseInt(sliderDiv.value) -
+        1;
+      var time = ("00" + new_time + ":00").slice(-5);
+      curentTime.innerText = time;
+      var colors = this.get_hole_state(time);
+      this.draw_rectangles(colors);
     },
   },
   mounted() {
-    this.$nextTick(this.draw_rectangles());
-    this.$nextTick(this.slider_listener());
+    this.$nextTick(this.draw_rectangles([]));
+    //this.$nextTick(this.slider_listener());
   },
   computed: {
     find_halls_out_dup() {
@@ -163,36 +216,10 @@ export default {
       });
       return halls_dup;
     },
-    convert_reservations() {
-      const type = "Tennis";
-
-      var converted_res_list = [];
-      var id_counter = 0;
-      this.reservationSource.forEach((element) => {
-        if (element.sportHall.hallType.type == type) {
-          console.log(element.sportHall.hallType.type);
-          var time_list = [];
-          var from = element.sportHall.work_from.split(":");
-          var to = element.sportHall.work_to.split(":");
-          var time_hours = parseInt(to, 10) - parseInt(from, 10);
-          for (var i = 0; i < time_hours; i++) {
-            time_list.push((parseInt(from, 10) + i).toString());
-          }
-          time_list.splice(-1, 1);
-          converted_res_list.push({
-            id_sportHall: element.sportHall.id,
-            id_num: id_counter,
-            time: time_list,
-            id_type: element.sportHall.hallType.type,
-          });
-          id_counter += 1;
-        }
-      });
-      return converted_res_list;
-    },
   },
 };
 </script>
+
 <style>
 .check-element {
   margin-bottom: 0.5em;
