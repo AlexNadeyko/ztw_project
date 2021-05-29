@@ -75,6 +75,7 @@ export default {
   },
   methods: {
     draw_rectangles(colors) {
+      //console.log(colors);
       var c = document.getElementById("myCanvas");
       var ctx = c.getContext("2d");
       var img = document.getElementById("MyImage");
@@ -94,7 +95,7 @@ export default {
         var finish_y = position[3];
         context.beginPath();
         context.rect(start_x, start_y, finish_x, finish_y);
-        if (colors.length == 0 || counter > colors.length) {
+        if (colors.length == 0 || counter >= colors.length) {
           context.fillStyle = "#E6E7E8";
         } else {
           context.fillStyle = colors[counter];
@@ -123,7 +124,7 @@ export default {
           var finish_y = position[3];
           ctx.beginPath();
           ctx.rect(start_x, start_y, finish_x, finish_y);
-          if (colors.length == 0 || counter > colors.length) {
+          if (colors.length == 0 || counter >= colors.length) {
             ctx.fillStyle = ctx.isPointInPath(x, y) ? "#BCBEC0" : "#E6E7E8";
           } else {
             ctx.fillStyle = ctx.isPointInPath(x, y)
@@ -173,10 +174,10 @@ export default {
           });
           if (hall_busy) {
             //red
-            result.push("#B5FBDD");
+            result.push("#FF756B");
           } else {
             //green
-            result.push("#FF756B");
+            result.push("#B5FBDD");
           }
         } else {
           //gray
