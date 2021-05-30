@@ -1,6 +1,7 @@
 <template>
   <div id="app" class="small-container">
     <Reservation reservations-table :reservationSource="reservations"  :hallSource="halls" />
+    
   </div>
 </template>
 
