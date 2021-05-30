@@ -17,7 +17,6 @@
           :name="type - hall"
           @change="radio_listener($event)"
           v-model="pick"
-          checked="checked"
         />
         <label :for="index">{{ option.hallType.type }}</label>
       </div>
@@ -41,6 +40,21 @@
           @change="slider_listener()"
         />
         <p class="time-element" id="finish-time">20:00</p>
+
+        <input
+          type="date"
+          class="date-check"
+          id="date-check"
+          name="date-check"
+          value="2018-07-22"
+          min="2018-01-01"
+          max="2018-12-31"
+          @change="date_listener()"
+        />
+
+        <button class="button turquoise" v-on:click="make_reservation">
+          <span>✓</span>Zarezerwuj
+        </button>
       </div>
     </div>
   </div>
@@ -71,6 +85,18 @@ export default {
         [743, 326, 401, 314],
       ],
       curent_type: "",
+      copy_hallSource: [
+        [1, "Tennis"],
+        [2, "Tennis"],
+        [3, "Tennis"],
+        [4, "Tennis"],
+        [5, "Tennis"],
+        [6, "Tennis"],
+        [7, "Basketball"],
+        [8, "Basketball"],
+        [9, "Basketball"],
+      ],
+      choosen: -1,
     };
   },
   methods: {
@@ -83,12 +109,17 @@ export default {
       var canvas = document.getElementById("myCanvas");
       var context = canvas.getContext("2d");
 
+      //ctx.clearRect(0, 0, canvas.width, canvas.height);
+
       var positions = [];
 
       var counter = 0;
 
+      var hall_data = this.copy_hallSource;
+
       this.img_positions_data.forEach((position) => {
         positions.push(position);
+        this.choosen = -1;
         var start_x = position[0];
         var start_y = position[1];
         var finish_x = position[2];
@@ -101,11 +132,24 @@ export default {
           context.fillStyle = colors[counter];
         }
         context.fill();
+        context.fillStyle = "black";
+        ctx.font = "30px Arial";
+        ctx.textAlign = "center";
+        ctx.fillText(
+          hall_data[counter][1],
+          start_x + finish_x / 2,
+          start_y + finish_y / 2 - 40
+        );
+        ctx.fillText(
+          hall_data[counter][0],
+          start_x + finish_x / 2,
+          start_y + finish_y / 2
+        );
+        //context.fill();
         counter += 1;
       });
 
       canvas.onmousemove = function(e) {
-        // important: correct mouse position:
         var counter = 0;
         var rect = this.getBoundingClientRect(),
           x = e.clientX - rect.left,
@@ -115,7 +159,7 @@ export default {
           "#FF756B": "#E20338",
           "#E6E7E8": "#BCBEC0",
         };
-        //ctx.clearRect(0, 0, canvas.width, canvas.height); // for demo
+        // ctx.clearRect(0, 0, canvas.width, canvas.height); // for demo
 
         positions.forEach((position) => {
           var start_x = position[0];
@@ -132,9 +176,94 @@ export default {
               : colors[counter];
           }
           ctx.fill();
+          context.fillStyle = "black";
+          ctx.font = "30px Arial";
+          ctx.textAlign = "center";
+          ctx.fillText(
+            hall_data[counter][1],
+            start_x + finish_x / 2,
+            start_y + finish_y / 2 - 40
+          );
+          ctx.fillText(
+            hall_data[counter][0],
+            start_x + finish_x / 2,
+            start_y + finish_y / 2
+          );
           counter += 1;
         });
       };
+      canvas.addEventListener("click", () =>
+        this.som(event, positions, colors)
+      );
+      //var choosen = 0;
+      // canvas.addEventListener("click", function(e) {
+      //   var rect = this.getBoundingClientRect(),
+      //     x = e.clientX - rect.left,
+      //     y = e.clientY - rect.top;
+
+      //   // Collision detection between clicked offset and element.
+      //   var counter = 0;
+
+      //   positions.forEach(function(position) {
+      //     var start_x = position[0];
+      //     var start_y = position[1];
+      //     var finish_x = position[2] + start_x;
+      //     var finish_y = position[3] + start_y;
+      //     if (y > start_y && y < finish_y && x > start_x && x < finish_x) {
+      //       console.log(this.curent_type);
+      //       if (colors[counter] == "#B5FBDD") {
+      //         choosen = counter;
+      //       } else {
+      //         choosen = -1;
+      //       }
+      //     }
+      //     counter += 1;
+      //   });
+      //   if (choosen >= 0) {
+      //     alert(123);
+      //     this.choosen = choosen;
+      //   }
+      // });
+    },
+
+    get_x_Y(e) {
+      var canvas = document.getElementById("myCanvas");
+      var rect = canvas.getBoundingClientRect(),
+        x = e.clientX - rect.left,
+        y = e.clientY - rect.top;
+      return [x, y];
+    },
+
+    som(e, positions, colors) {
+      var choosen = 0;
+      var x_y = this.get_x_Y(e);
+      var x = x_y[0];
+      var y = x_y[1];
+
+      var counter = 0;
+      console.log(positions, colors);
+      positions.forEach(function(position) {
+        var start_x = position[0];
+        var start_y = position[1];
+        var finish_x = position[2] + start_x;
+        var finish_y = position[3] + start_y;
+        if (y > start_y && y < finish_y && x > start_x && x < finish_x) {
+          if (colors[counter] == "#B5FBDD") {
+            choosen = counter;
+          } else {
+            choosen = -1;
+          }
+        }
+        counter += 1;
+      });
+
+      this.choosen = choosen;
+    },
+
+    make_reservation() {
+      if (this.choosen > 0) {
+        alert("Wybrany kort : " + " " + (this.choosen + 1));
+      }
     },
 
     set_time(optionText) {
@@ -158,6 +287,32 @@ export default {
       var optionText = event.target.value;
       this.curent_type = optionText;
       this.set_time(optionText);
+      var curentTime = document.getElementById("curent-time").innerText;
+      var time = curentTime + ":00";
+      console.log(time);
+      var colors = this.get_hole_state(time);
+      this.draw_rectangles(colors);
+    },
+
+    slider_listener() {
+      var sliderDiv = document.getElementById("myRange");
+      var curentTime = document.getElementById("curent-time");
+      var starttTime = document.getElementById("start-time");
+      var new_time =
+        parseInt(starttTime.innerText.split(":")[0]) +
+        parseInt(sliderDiv.value) -
+        1;
+      var time = ("00" + new_time + ":00").slice(-5);
+      curentTime.innerText = time;
+      var colors = this.get_hole_state(time);
+      this.draw_rectangles(colors);
+    },
+
+    date_listener() {
+      var curentTime = document.getElementById("curent-time").innerText;
+      var time = curentTime;
+      var colors = this.get_hole_state(time);
+      this.draw_rectangles(colors);
     },
 
     get_hole_state(time) {
@@ -167,7 +322,11 @@ export default {
           var hall_busy = false;
           this.reservationSource.forEach((reservation) => {
             if (element.id == reservation.sportHall.id) {
-              if (reservation.timeFrom != time + ":00") {
+              var date = document.getElementById("date-check");
+              if (
+                reservation.timeFrom == time + ":00" &&
+                reservation.reservationDate == date.value
+              ) {
                 hall_busy = true;
               }
             }
@@ -187,23 +346,42 @@ export default {
       return result;
     },
 
-    slider_listener() {
-      var sliderDiv = document.getElementById("myRange");
-      var curentTime = document.getElementById("curent-time");
-      var starttTime = document.getElementById("start-time");
-      var new_time =
-        parseInt(starttTime.innerText.split(":")[0]) +
-        parseInt(sliderDiv.value) -
-        1;
-      var time = ("00" + new_time + ":00").slice(-5);
-      curentTime.innerText = time;
-      var colors = this.get_hole_state(time);
-      this.draw_rectangles(colors);
+    set_min_date() {
+      var tomorrow = new Date();
+      var dd = tomorrow.getDate() + 1;
+      var mm = tomorrow.getMonth() + 1; //January is 0!
+      var yyyy = tomorrow.getFullYear();
+
+      var max_date = new Date();
+      max_date.setMonth(max_date.getMonth() + 3);
+      var max_dd = max_date.getDate() + 1;
+      var max_mm = max_date.getMonth() + 1; //January is 0!
+      var max_yyyy = max_date.getFullYear();
+      if (dd < 10) {
+        dd = "0" + dd;
+      }
+      if (mm < 10) {
+        mm = "0" + mm;
+      }
+      if (max_dd < 10) {
+        max_dd = "0" + max_dd;
+      }
+      if (max_mm < 10) {
+        max_mm = "0" + max_mm;
+      }
+
+      tomorrow = yyyy + "-" + mm + "-" + dd;
+      max_date = max_yyyy + "-" + max_mm + "-" + max_dd;
+      document.getElementById("date-check").setAttribute("min", tomorrow);
+      document.getElementById("date-check").setAttribute("max", max_date);
+      var dateControl = document.querySelector('input[type="date"]');
+      dateControl.value = tomorrow;
     },
   },
   mounted() {
-    this.$nextTick(this.draw_rectangles([]));
-    //this.$nextTick(this.slider_listener());
+    this.$nextTick(this.set_min_date());
+    var start_colors = this.get_hole_state("08:00");
+    this.$nextTick(this.draw_rectangles(start_colors));
   },
   computed: {
     find_halls_out_dup() {
@@ -240,11 +418,16 @@ export default {
 
 .time-container {
   display: inline-block;
-  width: 40%;
+  width: 70%;
 }
 
 .time-element {
   display: inline;
+}
+
+.date-check {
+  display: inline;
+  margin-left: 3em;
 }
 
 img {
@@ -261,13 +444,83 @@ canvas {
   width: 75%;
 }
 
+.curent-time {
+  margin-left: auto;
+}
+
+.button {
+  display: inline-block;
+  margin-left: 3em;
+  height: 50px;
+  line-height: 42px;
+  padding-right: 30px;
+  padding-left: 70px;
+  position: relative;
+  background-color: rgb(41, 127, 184);
+  color: rgb(255, 255, 255);
+  text-decoration: none;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 15px;
+
+  border-radius: 5px;
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  text-shadow: 0px 1px 0px rgba(0, 0, 0, 0.5);
+  -ms-filter: "progid:DXImageTransform.Microsoft.dropshadow(OffX=0,OffY=1,Color=#ff123852,Positive=true)";
+  zoom: 1;
+  filter: progid:DXImageTransform.Microsoft.dropshadow(OffX=0,OffY=1,Color=#ff123852,Positive=true);
+
+  -moz-box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.2);
+  -webkit-box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.2);
+  box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.2);
+  -ms-filter: "progid:DXImageTransform.Microsoft.dropshadow(OffX=0,OffY=2,Color=#33000000,Positive=true)";
+  filter: progid:DXImageTransform.Microsoft.dropshadow(OffX=0,OffY=2,Color=#33000000,Positive=true);
+}
+
+.button span {
+  position: absolute;
+  left: 0;
+  width: 50px;
+  background-color: rgba(0, 0, 0, 0.5);
+
+  -webkit-border-top-left-radius: 5px;
+  -webkit-border-bottom-left-radius: 5px;
+  -moz-border-radius-topleft: 5px;
+  -moz-border-radius-bottomleft: 5px;
+  border-top-left-radius: 5px;
+  border-bottom-left-radius: 5px;
+  border-right: 1px solid rgba(0, 0, 0, 0.15);
+}
+
+.button:hover span,
+.button.active span {
+  background-color: rgb(0, 102, 26);
+  border-right: 1px solid rgba(0, 0, 0, 0.3);
+}
+
+.button:active {
+  margin-top: 2px;
+  margin-bottom: 13px;
+
+  -moz-box-shadow: 0px 1px 0px rgba(255, 255, 255, 0.5);
+  -webkit-box-shadow: 0px 1px 0px rgba(255, 255, 255, 0.5);
+  box-shadow: 0px 1px 0px rgba(255, 255, 255, 0.5);
+  -ms-filter: "progid:DXImageTransform.Microsoft.dropshadow(OffX=0,OffY=1,Color=#ccffffff,Positive=true)";
+  filter: progid:DXImageTransform.Microsoft.dropshadow(OffX=0,OffY=1,Color=#ccffffff,Positive=true);
+}
+
+.button.turquoise {
+  background: #1abc9c;
+}
+
 .slidecontainer {
   width: 100%;
 }
 
 .slider {
   -webkit-appearance: none;
-  width: 60%;
+  width: 35%;
   height: 25px;
   background: #d3d3d3;
   outline: none;
