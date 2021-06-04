@@ -1,4 +1,6 @@
 <template>
+  <div class="navbar-background"></div>
+
   <h1>Reservation</h1>
 
   <div class="container">
@@ -423,6 +425,13 @@ export default {
 </script>
 
 <style>
+
+.navbar-background{
+  height: 113px;
+  width: 100%;
+  background-color: black;
+}
+
 .check-element {
   margin-bottom: 0.5em;
 }

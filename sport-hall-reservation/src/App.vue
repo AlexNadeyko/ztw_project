@@ -180,7 +180,7 @@ header {
 }
 
 .navbar-colored{
-  background: rgba(0, 0, 0, 0.3);
+  background: rgba(0, 0, 0, 0.6);
   padding: 18px 0;
   color: white;
 }
