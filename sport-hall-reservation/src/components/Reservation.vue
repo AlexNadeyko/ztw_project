@@ -65,12 +65,14 @@
 
 export default {
   name: "reservations-table",
-  props: {
-    reservationSource: Array,
-    hallSource: Array,
-  },
+  // props: {
+  //   reservationSource: Array,
+  //   hallSource: Array,
+  // },
   data() {
     return {
+      reservationSource: [],
+      hallSource: [],
       converted_reservation: Array,
       PlanFloor: require("../assets/PlanFloor.png"),
       img_positions_data: [
@@ -100,6 +102,25 @@ export default {
     };
   },
   methods: {
+    async getReservations() {
+      try {
+        const response = await fetch("http://localhost:8080/get/reservations");
+        const data = await response.json();
+        this.reservationSource = data;
+      } catch (error) {
+        console.error(error);
+      }
+    },
+
+    async getHalls() {
+      try {
+        const response = await fetch("http://localhost:8080/get/halls");
+        const data = await response.json();
+        this.hallSource = data;
+      } catch (error) {
+        console.error(error);
+      }
+    },
     draw_rectangles(colors) {
       //console.log(colors);
       var c = document.getElementById("myCanvas");
@@ -379,6 +400,8 @@ export default {
     },
   },
   mounted() {
+    this.getReservations();
+    this.getHalls();
     this.$nextTick(this.set_min_date());
     var start_colors = this.get_hole_state("08:00");
     this.$nextTick(this.draw_rectangles(start_colors));
