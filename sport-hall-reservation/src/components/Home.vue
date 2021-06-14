@@ -18,8 +18,8 @@
 
                             <!-- Description -->
                             <p class="text-white my-4">Play like you’re in first; train like you’re in second.</p>
-                            <router-link class="btn btn-primary-outline" role="button" to="/reservations">Reserve</router-link>
-                            
+                            <router-link v-if="isAuthenticated" class="btn btn-primary-outline" style="width: 30%;" role="button" to="/reservations">Reserve</router-link>
+                            <button v-if="!isAuthenticated"  onclick="document.getElementById('sign_in_form').style.display='block'" style="width: 30%;" class="btn btn-primary-outline my-2 my-sm-0" type="submit">Reserve</button>
                         </div>
                     </div>
                 </div>    
@@ -429,13 +429,158 @@
 
     </main>
 
+
+    
+
+<div id="sign_in_form" class="modal">
+  
+  <form class="modal-content animate" @submit.prevent="sign_in">
+
+    <div class="imgcontainer">
+      <h1>Sign In</h1>
+      <span onclick="document.getElementById('sign_in_form').style.display='none'" class="close" title="Close Modal">&times;</span>
+    </div>
+
+    <div class="container">
+        <label for="uname"><b>Email</b></label>
+        <input id="email_sign_in" type="text" placeholder="Enter Email" v-model="email_sign_in" required/>
+      
+      <label for="psw"><b>Password</b></label>
+      <input id="password_sign_in" type="password" placeholder="Enter Password" v-model="password_sign_in" required/>
+      
+      <input type="submit" value="Sign In" id="sign_in_submit">        
+      
+    </div>
+  
+    <div class="container" style="background-color:#f1f1f1">
+      <button type="button" onclick="document.getElementById('sign_in_form').style.display='none'" class="cancelbtn">Cancel</button>
+      
+        <div class="psw my-container-row">
+            <p>Need an account?</p>
+            <button v-on:click="change_to_sign_up"  type="submit">Sign Up</button>
+        </div>
+      
+    </div>
+  </form>
+</div>
+
+
+<div id="sign_up_form" class="modal">
+  
+  <form class="modal-content animate" @submit.prevent="sign_up">
+
+    <div class="imgcontainer">
+      <h1>Sign Up</h1>
+      <span onclick="document.getElementById('sign_up_form').style.display='none'" class="close" title="Close Modal">&times;</span>
+    </div>
+
+    <div class="container">
+      <label for="uname"><b>Email</b></label>
+      <input id="email_sign_up" type="text" placeholder="Enter Email" v-model="email_sign_up" required/>
+
+      <label for="psw"><b>Password</b></label>
+      <input id="password_sign_up" type="password" placeholder="Enter Password" v-model="password_sign_up" required/>
+      
+      <input type="submit" value="Sign Up">
+
+      
+    </div>
+
+    <div class="container" style="background-color:#f1f1f1">
+      <button type="button" onclick="document.getElementById('sign_up_form').style.display='none'" class="cancelbtn">Cancel</button>
+      
+        <div class="psw my-container-row">
+            <p>Have an account?</p>
+            <button v-on:click="change_to_sign_in"  type="submit">Sign In</button>
+        </div>
+
+    </div>
+  </form>
+</div>
+
 </template>
 
 <script>
-  
+import firebase from 'firebase';
+
+  export default {
+  name: 'app',
+
+  data() {
+    return {
+        isAuthenticated: false,
+    }
+  },
+
+   methods:{
+    check (user) {
+      console.log(user)
+      
+      if(user){
+        this.isAuthenticated = true;
+      }
+      else{
+        this.isAuthenticated = false;
+      }
+    },
+
+    sign_up: function(){
+      firebase
+            .auth()
+            .createUserWithEmailAndPassword(document.getElementById('email_sign_up').value, document.getElementById('password_sign_up').value)
+            .then(document.getElementById('sign_up_form').style.display='none')
+            .catch(err => alert(err.message));
+    },
+
+    sign_in: function(){
+            firebase
+            .auth()
+            .signInWithEmailAndPassword(document.getElementById('email_sign_in').value, document.getElementById('password_sign_in').value)
+            .then(document.getElementById('sign_in_form').style.display='none')
+            .catch(err => alert(err.message));
+    },
+
+    change_to_sign_in: function(){
+      document.getElementById('sign_up_form').style.display='none';
+      document.getElementById('sign_in_form').style.display='block';
+    },
+    change_to_sign_up: function(){
+      document.getElementById('sign_in_form').style.display='none';
+      document.getElementById('sign_up_form').style.display='block';
+    },
+   },
+  created() {
+    firebase.auth().onAuthStateChanged(this.check)
+  }
+
+}  
 </script>
 
 <style>
+
+.my-container-row{
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    float: right;
+}
+
+.my-container-row p {
+    width: 150px;
+    margin: auto;
+    /* margin: 0px; */
+}
+
+.my-container-row button {
+    border: 0;
+    width: 45%;
+    padding: 10px 18px;
+    text-align: center;
+    background-color: #18d26e;
+    color: #fff;
+    transition: 0.3s;
+    cursor: pointer;
+}
   
 #intro_section {
     background-color: black;
@@ -448,7 +593,6 @@
     height: 100vh;
     min-height: 500px;   
 }
-
 
 .btn-primary-outline {
     background-color: transparent;
@@ -471,9 +615,6 @@
 }
 
 .my_container {
-    
-    /* margin-top: 30px;
-    margin-bottom: 30px; */
     max-width: 1140px;
     width: 100%;
     margin-left: auto;
@@ -482,7 +623,6 @@
 }
 
 #about {
-    /* margin-top: 40px; */
     padding: 40px 0px 0px 0px;
 }
 
@@ -495,8 +635,6 @@
     text-align: center;
     text-transform: uppercase;
 }
-
-
 
 .section-text p{
     text-align: center;
@@ -562,10 +700,6 @@
     font-size: 16px;
 }
 
-
-/*  */
-
-
 #team{
     background-color: #f7f7f7;
     padding-top: 40px;
@@ -585,10 +719,6 @@
     background-color: #007b5e;
     border-color: #007b5e;
 }
-
-/* section {
-    padding: 60px 0;
-} */
 
 section .section-title {
     text-align: center;
@@ -855,10 +985,197 @@ position:absolute;
 }
 
 
+form {
+    margin-top: 30px;
+    background: black;
+    position: relative;
+}
 
+input[type="email"] {
+  border: 0;
+    padding: 6px 8px;
+    width: 65%;
+}
 
-/* dscds */
+input[type="email"] {
+    border: 0;
+    padding: 6px 8px;
+    width: 65%;
+}
 
+input[type="submit"] {
+  border: 0;
+  width: 35%;
+  padding: 6px 0;
+  text-align: center;
+  background-color: #18d26e;
+  color: #fff;
+  transition: 0.3s;
+  cursor: pointer;
+}
 
+#sign_in_form .container {
+  padding: 16px;
+  max-width: 1200px;
+}
+
+#sign_up_form .container {
+  padding: 16px;
+  max-width: 1200px;
+}
+
+input[type=text], input[type=password] {
+  width: 100%;
+  padding: 12px 6px;
+  margin: 8px 0;
+  display: inline-block;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+}
+
+input:focus[type=text], input:focus[type=password] {
+  border: 2px solid #18d26e;
+}
+
+input:focus-visible[type=text], input:focus-visible[type=password] {
+  outline: none;
+}
+
+/* Set a style for all buttons */
+button {
+  background-color: #04AA6D;
+  color: white;
+  padding: 14px 20px;
+  margin: 8px 0;
+  border: none;
+  cursor: pointer;
+  width: 100%;
+}
+
+button:hover {
+  opacity: 0.8;
+}
+
+/* Extra styles for the cancel button */
+.cancelbtn {
+  width: auto;
+  padding: 10px 18px;
+  background-color: #f44336;
+}
+
+/* Center the image and position the close button */
+.imgcontainer {
+  text-align: center;
+  margin: 24px 0 12px 0;
+  position: relative;
+}
+
+img.avatar {
+  width: 40%;
+  border-radius: 50%;
+}
+
+.container {
+  padding: 16px;
+}
+
+span.psw {
+  float: right;
+  padding-top: 16px;
+}
+
+/* The Modal (background) */
+.modal {
+  display: none; /* Hidden by default */
+  position: fixed; /* Stay in place */
+  z-index: 1; /* Sit on top */
+  left: 0;
+  top: 0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  overflow: auto; /* Enable scroll if needed */
+  background-color: rgb(0,0,0); /* Fallback color */
+  background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+  padding-top: 60px;
+}
+
+/* Modal Content/Box */
+.modal-content {
+  background-color: #fefefe;
+  margin: 5% auto 15% auto; /* 5% from the top, 15% from the bottom and centered */
+  border: 1px solid #888;
+  width: 80%; /* Could be more or less, depending on screen size */
+}
+
+/* The Close Button (x) */
+.close {
+  position: absolute;
+  right: 25px;
+  top: 0;
+  color: #000;
+  font-size: 35px;
+  font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+  color: red;
+  cursor: pointer;
+}
+
+/* Add Zoom Animation */
+.animate {
+  -webkit-animation: animatezoom 0.6s;
+  animation: animatezoom 0.6s
+}
+
+@-webkit-keyframes animatezoom {
+  from {-webkit-transform: scale(0)} 
+  to {-webkit-transform: scale(1)}
+}
+  
+@keyframes animatezoom {
+  from {transform: scale(0)} 
+  to {transform: scale(1)}
+}
+
+/* Change styles for span and cancel button on extra small screens */
+@media screen and (max-width: 300px) {
+  span.psw {
+     display: block;
+     float: none;
+  }
+  .cancelbtn {
+     width: 100%;
+  }
+}
+
+#sign_in_form input[type="submit"] {
+  background-color: #18d26e;
+  color: white;
+  padding: 14px 20px;
+  margin: 8px 0;
+  border: none;
+  cursor: pointer;
+  width: 100%;
+}
+
+#sign_in_form input:hover[type="submit"] {
+  opacity: 0.8;
+}
+
+#sign_up_form input[type="submit"] {
+  background-color: #18d26e;
+  color: white;
+  padding: 14px 20px;
+  margin: 8px 0;
+  border: none;
+  cursor: pointer;
+  width: 100%;
+}
+
+#sign_up_form input:hover[type="submit"]  {
+  opacity: 0.8;
+}
 
 </style>
