@@ -63,8 +63,12 @@
 </template>
 
 <script>
-//          @change="this.slider_listener($value)"
-
+import axios from "axios";
+const SERVER_URL = "http://localhost:8080";
+const instance = axios.create({
+  baseURL: SERVER_URL,
+  timeout: 2000,
+});
 export default {
   name: "reservations-table",
   // props: {
@@ -90,17 +94,32 @@ export default {
       ],
       curent_type: "",
       copy_hallSource: [
-        [1, "Tennis"],
+        [1, "Basketball"],
         [2, "Tennis"],
-        [3, "Tennis"],
-        [4, "Tennis"],
-        [5, "Tennis"],
+        [3, "Football"],
+        [4, "Volleyball"],
+        [5, "Basketball"],
         [6, "Tennis"],
-        [7, "Basketball"],
-        [8, "Basketball"],
-        [9, "Basketball"],
+        [7, "Tennis"],
+        [8, "Tennis"],
+        [9, "Football"],
       ],
       choosen: -1,
+      reservation: {
+        id_user: 1,
+        id_hall: -1,
+        reservation_date: "",
+        time_from: "",
+        time_to: "",
+        full_price: 0,
+        is_paid: 1,
+        description: "",
+      },
+      user: {
+        name: "Hleb",
+        surname: "Liaonik",
+        email: "248795@student.pwr.edu.pl",
+      },
     };
   },
   methods: {
@@ -218,35 +237,6 @@ export default {
       canvas.addEventListener("click", () =>
         this.som(event, positions, colors)
       );
-      //var choosen = 0;
-      // canvas.addEventListener("click", function(e) {
-      //   var rect = this.getBoundingClientRect(),
-      //     x = e.clientX - rect.left,
-      //     y = e.clientY - rect.top;
-
-      //   // Collision detection between clicked offset and element.
-      //   var counter = 0;
-
-      //   positions.forEach(function(position) {
-      //     var start_x = position[0];
-      //     var start_y = position[1];
-      //     var finish_x = position[2] + start_x;
-      //     var finish_y = position[3] + start_y;
-      //     if (y > start_y && y < finish_y && x > start_x && x < finish_x) {
-      //       console.log(this.curent_type);
-      //       if (colors[counter] == "#B5FBDD") {
-      //         choosen = counter;
-      //       } else {
-      //         choosen = -1;
-      //       }
-      //     }
-      //     counter += 1;
-      //   });
-      //   if (choosen >= 0) {
-      //     alert(123);
-      //     this.choosen = choosen;
-      //   }
-      // });
     },
 
     get_x_Y(e) {
@@ -286,7 +276,26 @@ export default {
     make_reservation() {
       if (this.choosen > 0) {
         alert("Wybrany kort : " + " " + (this.choosen + 1));
+        var date = document.getElementById("date-check").value;
+        var curentTime = document.getElementById("curent-time").innerText;
+        var time = curentTime;
+        console.log(date, time);
+        this.reservation = {
+          id_user: 1,
+          id_hall: this.choosen + 1,
+          reservation_date: date,
+          time_from: time,
+          time_to: time,
+          full_price: 0,
+          is_paid: 1,
+          description: "",
+        };
+        this.add_reservation(this.reservation);
       }
+    },
+
+    add_reservation(reservation) {
+      instance.post("http://localhost:8080/create/reservation/", reservation);
     },
 
     set_time(optionText) {
@@ -425,8 +434,7 @@ export default {
 </script>
 
 <style>
-
-.navbar-background{
+.navbar-background {
   height: 113px;
   width: 100%;
   background-color: black;
